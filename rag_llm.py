@@ -16,12 +16,13 @@ class RAG_LLM:
         self.embeddings = None
         self.retriever = None
         self.qa_chain = None
+        self.prompt = ""
 
     def vectorise(self, text_chunks):
         self.embeddings = FAISS.from_documents(text_chunks, self.openai_embeddings)
         self.embeddings.save_local(constants.EMBEDDINGS_SAVE_PATH)
 
-        self.retriever = self.embeddings.as_retriever(search_kwargs={'k': 4})
+        self.retriever = self.embeddings.as_retriever(search_kwargs={'k': 3})
 
 
     def initialize_llm(self):
@@ -29,6 +30,8 @@ class RAG_LLM:
             llm=OpenAIChat(openai_api_key=os.environ.get(constants.CHATGPT_API_KEY_FIELD)),
             retriever=self.retriever,
             return_source_documents=True,
+            # condense_question_prompt
+            combine_docs_chain_kwargs={"prompt": self.prompt}
         )
 
     def query_llm(self, query):
