@@ -36,6 +36,7 @@ class RAG_LLM:
 
     def query_llm(self, query):
         result = self.qa_chain({'question': query, 'chat_history': st.session_state.messages})
-        result = result['answer']
+        sources= ['['+sources.metadata['title']+']('+sources.metadata['source']+')' for sources in result['source_documents']]
+        result = result['answer']+'  \nSources:  \n- '+'  \n- '.join(sources)
         st.session_state.messages.append((query, result))
         return result
